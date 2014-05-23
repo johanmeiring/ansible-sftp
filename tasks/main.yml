@@ -40,3 +40,9 @@
   with_subelements:
     - sftp_users
     - authorized
+
+- name: SFTP-Server | Update user passwords
+  user: name={{ item.name }}
+        password={{ item.password }}
+  with_items: sftp_users
+  when: item.password != ''
