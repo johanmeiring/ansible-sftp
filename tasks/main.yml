@@ -24,15 +24,15 @@
 - name: SFTP-Server | Create sftp users
   user: name={{ item.name }}
         groups={{ sftp_group_name }}
-        home="/home/{{ item.name }}"
+        home="{{ sftp_home_partition }}/{{ item.name }}"
         state=present
   with_items: sftp_users
 
 - name: SFTP-Server | Correct ownership and permission of home directories
-  file: path="/home/{{ item.name }}"
+  file: path="{{ sftp_home_partition }}/{{ item.name }}"
         owner=root
         group={{ sftp_group_name }}
-        mode=0750
+        mode="0750"
   with_items: sftp_users
 
 - name: SFTP-Server | Install public keys
@@ -46,3 +46,13 @@
         password={{ item.password }}
   with_items: sftp_users
   when: item.password != ''
+
+- name: SFTP-Server | Create directories
+  file: path="{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1] }}"
+        owner={{ item[0].name }}
+        group={{ item[0].name }}
+        mode="0750"
+        state=directory
+  with_nested:
+    - sftp_users
+    - sftp_directories
