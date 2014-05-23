@@ -1,5 +1,5 @@
 ---
-- name: SFTP-Server | Create SFTP user group
+- name: SFTP-Server | Create sftp user group
   group: name={{ sftp_group_name }}
          state=present
 
@@ -20,3 +20,23 @@
             dest=/etc/ssh/sshd_config
             owner=root
   notify: SFTP-Server | Restart sshd
+
+- name: SFTP-Server | Create sftp users
+  user: name={{ item.name }}
+        groups={{ sftp_group_name }}
+        home="/home/{{ item.name }}"
+        state=present
+  with_items: sftp_users
+
+- name: SFTP-Server | Correct ownership and permission of home directories
+  file: path="/home/{{ item.name }}"
+        owner=root
+        group={{ sftp_group_name }}
+        mode=0750
+  with_items: sftp_users
+
+- name: SFTP-Server | Install public keys
+  authorized_key: user={{ item.0.name }} key='{{ lookup('file', item.1) }}'
+  with_subelements:
+    - sftp_users
+    - authorized
