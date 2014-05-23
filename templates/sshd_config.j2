@@ -1,0 +1,9 @@
+{{ sftp_sshd_config_content.stdout }}
+
+# Begin SFTP-Server block
+Match Group {{ sftp_group_name }}
+    ChrootDirectory %h
+    AllowTCPForwarding no
+    X11Forwarding no
+    ForceCommand internal-sftp
+# End SFTP-Server block

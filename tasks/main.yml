@@ -1,0 +1,22 @@
+---
+- name: SFTP-Server | Create SFTP user group
+  group: name={{ sftp_group_name }}
+         state=present
+
+- name: SFTP-Server | Alter sftp subsystem entry
+  lineinfile: dest=/etc/ssh/sshd_config
+              regexp="^Subsystem sftp"
+              line="Subsystem sftp internal-sftp -f AUTH -1 VERBOSE"
+              state=present
+  notify: SFTP-Server | Restart sshd
+
+- name: SFTP-Server | Get sshd_config content
+  shell: sed -n '/# Begin SFTP-Server block/,/# End SFTP-Server block/! { p }' /etc/ssh/sshd_config
+  register: sftp_sshd_config_content
+  changed_when: True == False
+
+- name: SFTP-Server | Apply sshd_config template
+  template: src=sshd_config.j2
+            dest=/etc/ssh/sshd_config
+            owner=root
+  notify: SFTP-Server | Restart sshd

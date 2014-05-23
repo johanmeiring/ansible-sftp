@@ -1,0 +1,4 @@
+---
+- name: SFTP-Server | Restart sshd
+  service: name=ssh
+           state=restarted
