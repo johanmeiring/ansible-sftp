@@ -2,3 +2,5 @@
 .DS_Store
 hosts
 ansible.cfg
+files/
+vars/
