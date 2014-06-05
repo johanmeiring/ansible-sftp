@@ -1,8 +1,10 @@
 ---
+# Creates group for SFTP users.
 - name: SFTP-Server | Create sftp user group
   group: name={{ sftp_group_name }}
          state=present
 
+# Necessary for chrooting of SFTP users.
 - name: SFTP-Server | Alter sftp subsystem entry
   lineinfile: dest=/etc/ssh/sshd_config
               regexp="^Subsystem sftp"
@@ -10,17 +12,20 @@
               state=present
   notify: SFTP-Server | Restart sshd
 
+# Some sed magic to grab the entire sshd_config, excluding our custom config block.
 - name: SFTP-Server | Get sshd_config content
   shell: sed -n '/# Begin SFTP-Server block/,/# End SFTP-Server block/! { p }' /etc/ssh/sshd_config
   register: sftp_sshd_config_content
   changed_when: True == False
 
+# Create/recreate ssh_config.
 - name: SFTP-Server | Apply sshd_config template
   template: src=sshd_config.j2
             dest=/etc/ssh/sshd_config
             owner=root
   notify: SFTP-Server | Restart sshd
 
+# Create each SFTP user with home directory on the correct patition, and add to SFTP group.
 - name: SFTP-Server | Create sftp users
   user: name={{ item.name }}
         groups={{ sftp_group_name }}
@@ -28,6 +33,7 @@
         state=present
   with_items: sftp_users
 
+# A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
 - name: SFTP-Server | Correct ownership and permission of home directories
   file: path="{{ sftp_home_partition }}/{{ item.name }}"
         owner=root
@@ -35,18 +41,21 @@
         mode="0750"
   with_items: sftp_users
 
+# Install all relevant public keys.
 - name: SFTP-Server | Install public keys
   authorized_key: user={{ item.0.name }} key='{{ lookup('file', item.1) }}'
   with_subelements:
     - sftp_users
     - authorized
 
+# Update user passwords, if they were specified.
 - name: SFTP-Server | Update user passwords
   user: name={{ item.name }}
         password={{ item.password }}
   with_items: sftp_users
   when: item.password != ''
 
+# Create directories for SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
   file: path="{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1] }}"
         owner={{ item[0].name }}
