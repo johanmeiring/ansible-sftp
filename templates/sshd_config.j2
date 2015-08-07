@@ -3,6 +3,7 @@
 # Begin SFTP-Server block
 Match Group {{ sftp_group_name }}
     ChrootDirectory %h
+    PasswordAuthentication yes
     AllowTCPForwarding no
     X11Forwarding no
     ForceCommand internal-sftp
