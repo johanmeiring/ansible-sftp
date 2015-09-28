@@ -6,4 +6,6 @@ Match Group {{ sftp_group_name }}
     AllowTCPForwarding no
     X11Forwarding no
     ForceCommand internal-sftp
+    {% if sftp_allow_passwords %}PasswordAuthentication yes{% endif %}
+
 # End SFTP-Server block
