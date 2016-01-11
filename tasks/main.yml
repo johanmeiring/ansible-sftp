@@ -53,7 +53,7 @@
   user: name={{ item.name }}
         password={{ item.password }}
   with_items: sftp_users
-  when: item.password != ''
+  when: item.password is defined and item.password != ""
 
 # Create directories for SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
