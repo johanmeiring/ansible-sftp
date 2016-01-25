@@ -25,6 +25,7 @@ The following role variables are relevant:
 * `sftp_home_partition`: The partition where SFTP users' home directories will be located.  Defaults to "/home".
 * `sftp_group_name`: The name of the Unix group to which all SFTP users must belong.  Defaults to "sftpusers".
 * `sftp_directories`: A list of directories that need to be created automatically for each SFTP user.  Defaults to a blank list (i.e. "[]").
+  * Values can be plain strings, or dictionaries containing `name` and (optionally) `mode` key/value pairs.
 * `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
@@ -51,6 +52,7 @@ Example Playbook
     - sftp_directories:
       - imports
       - exports
+      - { name: public, mode: 755 }
       - other
   roles:
     - sftp-server
