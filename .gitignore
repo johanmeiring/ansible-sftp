@@ -4,3 +4,4 @@ hosts
 ansible.cfg
 files/
 vars/
+*.retry

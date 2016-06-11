@@ -7,7 +7,7 @@
 # Necessary for chrooting of SFTP users.
 - name: SFTP-Server | Alter sftp subsystem entry
   lineinfile: dest=/etc/ssh/sshd_config
-              regexp="^Subsystem sftp"
+              regexp="^Subsystem(\s+)sftp"
               line="Subsystem sftp internal-sftp -f AUTH -l VERBOSE"
               state=present
   notify: SFTP-Server | Restart sshd
