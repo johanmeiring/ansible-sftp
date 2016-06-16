@@ -1,10 +1,8 @@
-SFTP-Server
-===========
+# SFTP-Server
 
 An Ansible role which configures an OpenSSH server for chrooted SFTP access.  The role is built in such a way that it will not unnecessarily alter a user's OpenSSH customisations.  Instead, it simply changes the crucial bits that it needs to, and adds the rest of its configuration in the form of a custom config block (OpenSSH's lack of some form of conf.d/ support forces this behaviour).
 
-Requirements
-------------
+## Requirements
 
 It is advisable that `scp_if_ssh` be set to `true` in the `ssh_connection` section of your `ansible.cfg` file, seeing as how Ansible uses SFTP for file transfers by default, and you can easily lock yourself out of your server's SFTP by using this role.  The SCP fallback will continue to work.  Example config:
 
@@ -17,8 +15,7 @@ scp_if_ssh=True
 
 Other than that, only Ansible itself is required.  Tested using Ansible 1.5 and 1.6.
 
-Role Variables
---------------
+## Role Variables
 
 The following role variables are relevant:
 
@@ -29,12 +26,11 @@ The following role variables are relevant:
 * `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
-  * `password`: A password hash for the user to login with (leave blank if a key is used exclusively).
+  * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
   * `authorized`: A list of files placed in `files/` which contain valid public keys for the SFTP user.
 
 
-Example Playbook
--------------------------
+## Example Playbook
 
 ```yaml
 ---
@@ -58,7 +54,6 @@ Example Playbook
     - sftp-server
 ```
 
-License
--------
+## License
 
 Licensed under the MIT License. See the LICENSE file for details.
