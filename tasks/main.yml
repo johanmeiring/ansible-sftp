@@ -31,7 +31,7 @@
         groups={{ sftp_group_name }}
         home="{{ sftp_home_partition }}/{{ item.name }}"
         state=present
-  with_items: sftp_users
+  with_items: "{{ sftp_users }}"
 
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
 - name: SFTP-Server | Correct ownership and permission of home directories
@@ -39,20 +39,20 @@
         owner=root
         group={{ sftp_group_name }}
         mode="0750"
-  with_items: sftp_users
+  with_items: "{{ sftp_users }}"
 
 # Install all relevant public keys.
 - name: SFTP-Server | Install public keys
   authorized_key: user={{ item.0.name }} key='{{ lookup('file', item.1) }}'
   with_subelements:
-    - sftp_users
+    - "{{ sftp_users }}"
     - authorized
 
 # Update user passwords, if they were specified.
 - name: SFTP-Server | Update user passwords
   user: name={{ item.name }}
         password={{ item.password }}
-  with_items: sftp_users
+  with_items: "{{ sftp_users }}"
   when: item.password is defined
 
 # Create directories for SFTP users. Optional, but recommended.
@@ -63,5 +63,5 @@
         mode="{{ item[1].mode | default(0750) }}"
         state=directory
   with_nested:
-    - sftp_users
-    - sftp_directories
+    - "{{ sftp_users }}"
+    - "{{ sftp_directories }}"
