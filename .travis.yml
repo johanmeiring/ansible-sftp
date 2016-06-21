@@ -39,9 +39,15 @@ script:
   # Test role.
   - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml'
 
-  # Small test for workings of role.
-  - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "user1" /etc/shadow && (echo "User created" && exit 0) || (echo "User not created" && exit 1)'
-  - 'sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/tests1 && (echo "Directory created" && exit 0) || (echo "Directory not created" && exit 1)'
+  # Small tests for workings of role.
+  - >
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "user1" /etc/shadow
+    && (echo 'User created' && exit 0)
+    || (echo 'User not created' && exit 1)
+  - >
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/test1
+    && (echo 'Directory created' && exit 0)
+    || (echo 'Directory not created' && exit 1)
 
   # Test role idempotence.
   - >
