@@ -50,6 +50,7 @@
     name: "{{ item.name }}"
     groups: "{{ sftp_group_name }}"
     home: "{{ sftp_home_partition }}/{{ item.name }}"
+    shell: "/sbin/nologin"
     state: present
   with_items: "{{ sftp_users }}"
 
