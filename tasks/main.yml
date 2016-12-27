@@ -18,6 +18,20 @@
   register: sftp_sshd_config_content
   changed_when: True == False
 
+- name: SFTP-Server | Ensure SELinux management package is present
+  package: name=libsemanage-python state=present
+  when: ansible_selinux
+
+- name: SFTP-Server | Set SELinux booleans
+  seboolean:
+    name: "{{ item }}"
+    state: yes
+    persistent: yes
+  with_items:
+    - ssh_chroot_full_access
+    - ssh_chroot_rw_homedirs
+  when: ansible_selinux
+
 # Create/recreate ssh_config.
 - name: SFTP-Server | Apply sshd_config template
   template: src=sshd_config.j2
