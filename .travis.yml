@@ -2,17 +2,17 @@
 sudo: required
 
 env:
-  - ansible: 1.9.6
-    distribution: ubuntu
-    version: 14.04
-    init: /sbin/init
-    run_opts: ""
   - ansible: 2.0.2.0
     distribution: ubuntu
     version: 14.04
     init: /sbin/init
     run_opts: ""
   - ansible: 2.1.0.0
+    distribution: ubuntu
+    version: 14.04
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.2.1.0
     distribution: ubuntu
     version: 14.04
     init: /sbin/init
