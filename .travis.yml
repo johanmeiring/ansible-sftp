@@ -17,6 +17,11 @@ env:
     version: 14.04
     init: /sbin/init
     run_opts: ""
+  - ansible: 2.2.1.0
+    distribution: ubuntu
+    version: 16.04
+    init: /sbin/init
+    run_opts: ""
 
 services:
   - docker
