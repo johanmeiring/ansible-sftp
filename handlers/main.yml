@@ -1,4 +1,4 @@
 ---
 - name: SFTP-Server | Restart sshd
-  service: name=ssh
+  service: name={{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}
            state=restarted
