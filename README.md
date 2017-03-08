@@ -29,7 +29,8 @@ The following role variables are relevant:
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
   * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
-  * `authorized`: A list of files placed in `files/` which contain valid public keys for the SFTP user.
+  * `shell`: Boolean indicating if the user should have a shell access (default to `True`).
+  * `authorized`: An optional list of files placed in `files/` which contain valid public keys for the SFTP user.
 
 
 ## Example Playbook
@@ -44,7 +45,7 @@ The following role variables are relevant:
     - sftp_users:
       - name: peter
         password: "$1$salty$li5TXAa2G6oxHTDkqx3Dz/" # passpass
-        authorized: []
+        shell: False
       - name: sally
         password: ""
         authorized: [sally.pub]
