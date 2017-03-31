@@ -3,3 +3,4 @@ sftp_home_partition: /home
 sftp_group_name: sftpusers
 sftp_directories: []
 sftp_allow_passwords: False
+sftp_enable_selinux_support: False
