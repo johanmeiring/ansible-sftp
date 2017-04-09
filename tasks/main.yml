@@ -22,9 +22,9 @@
 
 - name: SFTP-Server | Ensure SELinux management package is present
   package:
-    name: libsemanage-python
+    name: "{{ 'python-semanage' if ansible_distribution == 'Debian' else 'libsemanage-python' }}"
     state: present
-  when: ansible_selinux
+  when: ansible_selinux and sftp_enable_selinux_support
 
 - name: SFTP-Server | Set SELinux booleans
   seboolean:
@@ -34,7 +34,7 @@
   with_items:
     - ssh_chroot_full_access
     - ssh_chroot_rw_homedirs
-  when: ansible_selinux
+  when: ansible_selinux and sftp_enable_selinux_support
 
 # Create/recreate ssh_config.
 - name: SFTP-Server | Apply sshd_config template
