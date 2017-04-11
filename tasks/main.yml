@@ -14,12 +14,6 @@
     state: present
   notify: SFTP-Server | Restart sshd
 
-# Some sed magic to grab the entire sshd_config, excluding our custom config block.
-- name: SFTP-Server | Get sshd_config content
-  shell: sed -n '/# Begin SFTP-Server block/,/# End SFTP-Server block/! { p }' /etc/ssh/sshd_config
-  register: sftp_sshd_config_content
-  changed_when: True == False
-
 - name: SFTP-Server | Ensure SELinux management package is present
   package:
     name: "{{ 'python-semanage' if ansible_distribution == 'Debian' else 'libsemanage-python' }}"
@@ -36,15 +30,20 @@
     - ssh_chroot_rw_homedirs
   when: ansible_selinux and sftp_enable_selinux_support
 
-# Create/recreate ssh_config.
-- name: SFTP-Server | Apply sshd_config template
-  template:
-    src: sshd_config.j2
+- name: SFTP-Server | Add sshd_config block
+  blockinfile:
     dest: /etc/ssh/sshd_config
-    owner: root
+    marker: '# {mark} SFTP-Server block'
+    block: |
+      Match Group {{ sftp_group_name }}
+          ChrootDirectory %h
+          AllowTCPForwarding no
+          X11Forwarding no
+          ForceCommand internal-sftp
+          PasswordAuthentication {% if sftp_allow_passwords %}yes{% else %}no{% endif %}
   notify: SFTP-Server | Restart sshd
 
-# Create each SFTP user with home directory on the correct patition, and add to SFTP group.
+# Create each SFTP user with home directory on the correct partition, and add to SFTP group.
 - name: SFTP-Server | Create sftp users
   user:
     name: "{{ item.name }}"
