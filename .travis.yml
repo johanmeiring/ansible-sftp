@@ -7,17 +7,22 @@ env:
     version: 14.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.1.0.0
+  - ansible: 2.2.2.0
     distribution: ubuntu
     version: 14.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.2.1.0
+  - ansible: 2.2.2.0
+    distribution: ubuntu
+    version: 16.04
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.3.0.0
     distribution: ubuntu
     version: 14.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.2.1.0
+  - ansible: 2.3.0.0
     distribution: ubuntu
     version: 16.04
     init: /sbin/init
