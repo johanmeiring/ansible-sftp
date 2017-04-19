@@ -39,8 +39,8 @@
           ChrootDirectory %h
           AllowTCPForwarding no
           X11Forwarding no
-          ForceCommand internal-sftp
-          PasswordAuthentication {% if sftp_allow_passwords %}yes{% else %}no{% endif %}
+          ForceCommand internal-sftp {{ sftp_enable_logging | ternary('-l VERBOSE', '') }}
+          PasswordAuthentication {{ sftp_allow_passwords | ternary('yes', 'no') }}
   notify: SFTP-Server | Restart sshd
 
 # Create each SFTP user with home directory on the correct partition, and add to SFTP group.
@@ -93,3 +93,18 @@
   with_nested:
     - "{{ sftp_users }}"
     - "{{ sftp_directories }}"
+
+- name: SFTP-Server | Enable Logging
+  blockinfile:
+    dest: "/etc/rsyslog.d/{{ item.name }}.conf"
+    create: yes
+    block: |
+      # Create an additional socket for some of the sshd chrooted users.
+      $AddUnixListenSocket /home/{{ item.name }}/dev/log
+
+      # Log internal-sftp in a separate file
+      :programname, isequal, "internal-sftp" -/var/log/sftp_{{ item.name }}.log
+      :programname, isequal, "internal-sftp" ~
+  with_items: "{{ sftp_users }}"
+  when: sftp_enable_logging
+  notify: SFTP-Server | Restart rsyslog
