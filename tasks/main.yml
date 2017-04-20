@@ -94,17 +94,31 @@
     - "{{ sftp_users }}"
     - "{{ sftp_directories }}"
 
+- name: SFTP-Server | Create dev directory for logging
+  file:
+    path: "{{ sftp_home_partition }}/{{ item.name }}/dev"
+    owner: root
+    group: root
+    state: directory
+  with_items:
+    - "{{ sftp_users }}"
+  when: sftp_enable_logging
+
 - name: SFTP-Server | Enable Logging
   blockinfile:
-    dest: "/etc/rsyslog.d/{{ item.name }}.conf"
+    dest: "/etc/rsyslog.d/sshd.conf"
     create: yes
     block: |
       # Create an additional socket for some of the sshd chrooted users.
-      $AddUnixListenSocket /home/{{ item.name }}/dev/log
+      {% for user in sftp_users %}
+      $AddUnixListenSocket /home/{{ user.name }}/dev/log
+      {% endfor %}
 
       # Log internal-sftp in a separate file
-      :programname, isequal, "internal-sftp" -/var/log/sftp_{{ item.name }}.log
+      :programname, isequal, "internal-sftp" -/var/log/sftp/verbose.log
       :programname, isequal, "internal-sftp" ~
-  with_items: "{{ sftp_users }}"
+
+      # additionally write an auth log
+      auth,authpriv.*  /var/log/sftp/auth.log
   when: sftp_enable_logging
   notify: SFTP-Server | Restart rsyslog
