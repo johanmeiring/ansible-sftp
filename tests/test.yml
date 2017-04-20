@@ -9,6 +9,9 @@
       - name: user1
         password: ""
         authorized: []
+        sftp_directories:
+        - test3
+        - test4
 
   roles:
     - role_under_test

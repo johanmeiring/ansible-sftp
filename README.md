@@ -23,7 +23,7 @@ The following role variables are relevant:
 
 * `sftp_home_partition`: The partition where SFTP users' home directories will be located.  Defaults to "/home".
 * `sftp_group_name`: The name of the Unix group to which all SFTP users must belong.  Defaults to "sftpusers".
-* `sftp_directories`: A list of directories that need to be created automatically for each SFTP user.  Defaults to a blank list (i.e. "[]").
+* `sftp_directories`: A list of directories that need to be created automatically by default for all SFTP user. Defaults to a blank list (i.e. "[]").
   * Values can be plain strings, or dictionaries containing `name` and (optionally) `mode` key/value pairs.
 * `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
 * `sftp_enable_selinux_support`: Whether or not to explicitly enable SELinux support. Defaults to False.
@@ -32,6 +32,7 @@ The following role variables are relevant:
   * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
   * `shell`: Boolean indicating if the user should have a shell access (default to `True`).
   * `authorized`: An optional list of files placed in `files/` which contain valid public keys for the SFTP user.
+  * `sftp_directories`: A list of directories that need to be individually created for an SFTP user. Defaults to a blank list (i.e. "[]").
 
 
 ## Example Playbook
@@ -47,6 +48,9 @@ The following role variables are relevant:
       - name: peter
         password: "$1$salty$li5TXAa2G6oxHTDkqx3Dz/" # passpass
         shell: False
+        sftp_directories:
+        - directory_only_for_peter1
+        - directory_only_for_peter2
       - name: sally
         password: ""
         authorized: [sally.pub]

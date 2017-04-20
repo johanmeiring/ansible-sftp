@@ -82,7 +82,7 @@
   with_items: "{{ sftp_users }}"
   when: item.password is defined
 
-# Create directories for SFTP users. Optional, but recommended.
+# Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
   file:
     path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
@@ -93,6 +93,20 @@
   with_nested:
     - "{{ sftp_users }}"
     - "{{ sftp_directories }}"
+
+# Create directories for individual SFTP users. Optional.
+- name: SFTP-Server | Create directories per user
+  file:
+    path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
+    owner: "{{ item[0].name }}"
+    group: "{{ item[0].name }}"
+    mode: "{{ item[1].mode | default(0750) }}"
+    state: directory
+  with_subelements:
+    - "{{ sftp_users }}"
+    - "sftp_directories"
+    - flags:
+      skip_missing: True
 
 - name: SFTP-Server | Create dev directory for logging
   file:
