@@ -11,6 +11,7 @@ run_test() {
   docker exec --tty "$(cat ${container_id})" env TERM=xterm ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml
   docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "user1" /etc/shadow && (echo 'User created' && exit 0) || (echo 'User not created' && exit 1)
   docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/test1 && (echo 'Directory created' && exit 0) || (echo 'Directory not created' && exit 1)
+  docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/test3 && (echo 'User Directory created' && exit 0) || (echo 'User Directory not created' && exit 1)
   docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml | grep -q 'changed=0.*failed=0' && (echo 'Idempotence test: pass' && exit 0) || (echo 'Idempotence test: fail' && exit 1)
   docker stop "$(cat ${container_id})"
 }

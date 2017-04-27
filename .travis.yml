@@ -78,6 +78,12 @@ script:
     && (echo 'Directory created' && exit 0)
     || (echo 'Directory not created' && exit 1)
 
+  # Test user-specific directory creation
+  - >
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/test3
+    && (echo 'User Directory created' && exit 0)
+    || (echo 'User Directory not created' && exit 1)
+
   # Test role idempotence.
   - >
     sudo docker exec "$(cat ${container_id})" ansible-playbook /etc/ansible/roles/role_under_test/tests/test.yml
