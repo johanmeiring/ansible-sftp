@@ -1,11 +1,9 @@
 # SFTP-Server
-
-[![Build Status](https://travis-ci.org/johanmeiring/ansible-sftp.svg?branch=master)](https://travis-ci.org/johanmeiring/ansible-sftp)
+[![Ansible Role](https://img.shields.io/ansible/role/991.svg)](https://galaxy.ansible.com/johanmeiring/sftp-server/) [![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-round)](https://github.com/johanmeiring/awesomeminer-go-sdk/blob/master/LICENSE) [![Build Status](https://travis-ci.org/johanmeiring/ansible-sftp.svg?branch=master)](https://travis-ci.org/johanmeiring/ansible-sftp)
 
 An Ansible role which configures an OpenSSH server for chrooted SFTP access.  The role is built in such a way that it will not unnecessarily alter a user's OpenSSH customisations.  Instead, it simply changes the crucial bits that it needs to, and adds the rest of its configuration in the form of a custom config block (OpenSSH's lack of some form of conf.d/ support forces this behaviour).
 
 ## Requirements
-
 It is advisable that `scp_if_ssh` be set to `true` in the `ssh_connection` section of your `ansible.cfg` file, seeing as how Ansible uses SFTP for file transfers by default, and you can easily lock yourself out of your server's SFTP by using this role.  The SCP fallback will continue to work.  Example config:
 
 ```ini
@@ -15,10 +13,9 @@ It is advisable that `scp_if_ssh` be set to `true` in the `ssh_connection` secti
 scp_if_ssh=True
 ```
 
-Other than that, only Ansible itself is required.  Tested using Ansible 2.0.2.0, 2.1.0.0 and 2.2.1.0.  Works on Ubuntu 14.04 and 16.04, untested on other versions.  Some work has been done on supporting RHEL, though this is not currently officially supported by the original author (further contributions are obviously welcome ;-)
+Other than that, only Ansible itself is required.  Tested using Ansible 2.0.2.0, 2.2.2.0 and 2.3.0.0.  Works on Ubuntu 14.04 and 16.04, untested on other versions.  Some work has been done on supporting RHEL, though this is not currently officially supported by the original author (further contributions are obviously welcome ;-)
 
 ## Role Variables
-
 The following role variables are relevant:
 
 * `sftp_home_partition`: The partition where SFTP users' home directories will be located.  Defaults to "/home".
@@ -38,7 +35,6 @@ The following role variables are relevant:
 
 
 ## Example Playbook
-
 ```yaml
 ---
 - name: test-playbook | Test sftp-server role
@@ -67,5 +63,9 @@ The following role variables are relevant:
 ```
 
 ## License
+This Ansible role is distributed under the MIT License.  See the LICENSE file for more details.
 
-Licensed under the MIT License. See the LICENSE file for details.
+## Donations
+Donations are very welcome, and can be made to the following addresses:
+* BTC: 1AWHJcUBha35FnuuWat9urRW2FNc4ftztv
+* ETH: 0xAF1Aac4c40446F4C46e55614F14d9b32d712ECBc
