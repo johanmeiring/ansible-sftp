@@ -34,6 +34,7 @@ The following role variables are relevant:
   * `shell`: Boolean indicating if the user should have a shell access (default to `True`).
   * `authorized`: An optional list of files placed in `files/` which contain valid public keys for the SFTP user.
   * `sftp_directories`: A list of directories that need to be individually created for an SFTP user. Defaults to a blank list (i.e. "[]").
+  * `append`: Boolean to add `sftp_group_name` to the user groups (if any) instead of setting it (defaut to `False`).
 
 
 ## Example Playbook
@@ -55,6 +56,7 @@ The following role variables are relevant:
       - name: sally
         password: ""
         authorized: [sally.pub]
+        append: True
     - sftp_directories:
       - imports
       - exports
