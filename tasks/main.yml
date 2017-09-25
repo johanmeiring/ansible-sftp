@@ -14,17 +14,11 @@
     state: present
   notify: SFTP-Server | Restart sshd
 
-# Some sed magic to grab the entire sshd_config, excluding our custom config block.
-- name: SFTP-Server | Get sshd_config content
-  shell: sed -n '/# Begin SFTP-Server block/,/# End SFTP-Server block/! { p }' /etc/ssh/sshd_config
-  register: sftp_sshd_config_content
-  changed_when: True == False
-
 - name: SFTP-Server | Ensure SELinux management package is present
   package:
-    name: libsemanage-python
+    name: "{{ 'python-semanage' if ansible_distribution == 'Debian' else 'libsemanage-python' }}"
     state: present
-  when: ansible_selinux
+  when: ansible_selinux and sftp_enable_selinux_support
 
 - name: SFTP-Server | Set SELinux booleans
   seboolean:
@@ -32,23 +26,32 @@
     state: yes
     persistent: yes
   with_items:
+    - ssh_chroot_full_access
     - ssh_chroot_rw_homedirs
-  when: ansible_selinux
+  when: ansible_selinux and sftp_enable_selinux_support
 
-# Create/recreate ssh_config.
-- name: SFTP-Server | Apply sshd_config template
-  template:
-    src: sshd_config.j2
+- name: SFTP-Server | Add sshd_config block
+  blockinfile:
     dest: /etc/ssh/sshd_config
-    owner: root
+    marker: '# {mark} SFTP-Server block'
+    block: |
+      Match Group {{ sftp_group_name }}
+          ChrootDirectory %h
+          AllowTCPForwarding no
+          X11Forwarding no
+          ForceCommand internal-sftp {{ sftp_enable_logging | ternary('-l VERBOSE', '') }}
+          PasswordAuthentication {{ sftp_allow_passwords | ternary('yes', 'no') }}
   notify: SFTP-Server | Restart sshd
 
-# Create each SFTP user with home directory on the correct patition, and add to SFTP group.
+# Create each SFTP user with home directory on the correct partition, and add to SFTP group.
 - name: SFTP-Server | Create sftp users
   user:
     name: "{{ item.name }}"
     groups: "{{ sftp_group_name }}"
+    append: "{{ item.append | default(False) }}"
     home: "{{ sftp_home_partition }}/{{ item.name }}"
+    # `None` means default value -> default is to have a shell
+    shell: "{{ None if (item.shell | default(True)) else '/sbin/nologin' }}"
     state: present
   with_items: "{{ sftp_users }}"
 
@@ -69,6 +72,8 @@
   with_subelements:
     - "{{ sftp_users }}"
     - authorized
+    - flags:
+      skip_missing: True
 
 # Update user passwords, if they were specified.
 - name: SFTP-Server | Update user passwords
@@ -78,7 +83,7 @@
   with_items: "{{ sftp_users }}"
   when: item.password is defined
 
-# Create directories for SFTP users. Optional, but recommended.
+# Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
   file:
     path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
@@ -89,3 +94,46 @@
   with_nested:
     - "{{ sftp_users }}"
     - "{{ sftp_directories }}"
+
+# Create directories for individual SFTP users. Optional.
+- name: SFTP-Server | Create directories per user
+  file:
+    path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
+    owner: "{{ item[0].name }}"
+    group: "{{ item[0].name }}"
+    mode: "{{ item[1].mode | default(0750) }}"
+    state: directory
+  with_subelements:
+    - "{{ sftp_users }}"
+    - "sftp_directories"
+    - flags:
+      skip_missing: True
+
+- name: SFTP-Server | Create dev directory for logging
+  file:
+    path: "{{ sftp_home_partition }}/{{ item.name }}/dev"
+    owner: root
+    group: root
+    state: directory
+  with_items:
+    - "{{ sftp_users }}"
+  when: sftp_enable_logging
+
+- name: SFTP-Server | Enable Logging
+  blockinfile:
+    dest: "/etc/rsyslog.d/sshd.conf"
+    create: yes
+    block: |
+      # Create an additional socket for some of the sshd chrooted users.
+      {% for user in sftp_users %}
+      $AddUnixListenSocket /home/{{ user.name }}/dev/log
+      {% endfor %}
+
+      # Log internal-sftp in a separate file
+      :programname, isequal, "internal-sftp" -/var/log/sftp/verbose.log
+      :programname, isequal, "internal-sftp" ~
+
+      # additionally write an auth log
+      auth,authpriv.*  /var/log/sftp/auth.log
+  when: sftp_enable_logging
+  notify: SFTP-Server | Restart rsyslog

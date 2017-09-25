@@ -7,19 +7,44 @@ env:
     version: 14.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.1.0.0
+  - ansible: 2.2.2.0
     distribution: ubuntu
     version: 14.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.2.1.0
-    distribution: ubuntu
-    version: 14.04
-    init: /sbin/init
-    run_opts: ""
-  - ansible: 2.2.1.0
+  - ansible: 2.2.2.0
     distribution: ubuntu
     version: 16.04
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.3.0.0
+    distribution: ubuntu
+    version: 14.04
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.3.0.0
+    distribution: ubuntu
+    version: 16.04
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.2.2.0
+    distribution: centos
+    version: 6
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.3.0.0
+    distribution: centos
+    version: 6
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.2.2.0
+    distribution: centos
+    version: 7
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.3.0.0
+    distribution: centos
+    version: 7
     init: /sbin/init
     run_opts: ""
 
@@ -34,7 +59,7 @@ before_install:
 
 script:
   - container_id=$(mktemp)
-    # Run container in detached state
+  # Run container in detached state
   - 'sudo docker run --detach --volume="${PWD}":/etc/ansible/roles/role_under_test:ro ${run_opts} ${distribution}-${version}:ansible-${ansible} "${init}" > "${container_id}"'
 
   # Ansible syntax check.
@@ -52,6 +77,12 @@ script:
     sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/test1
     && (echo 'Directory created' && exit 0)
     || (echo 'Directory not created' && exit 1)
+
+  # Test user-specific directory creation
+  - >
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/test3
+    && (echo 'User Directory created' && exit 0)
+    || (echo 'User Directory not created' && exit 1)
 
   # Test role idempotence.
   - >
