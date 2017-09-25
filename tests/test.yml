@@ -1,0 +1,14 @@
+---
+- hosts: all
+
+  vars:
+    sftp_directories:
+      - test1
+      - test2
+    sftp_users:
+      - name: user1
+        password: ""
+        authorized: []
+
+  roles:
+    - role_under_test
