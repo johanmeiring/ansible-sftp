@@ -126,7 +126,7 @@
     block: |
       # Create an additional socket for some of the sshd chrooted users.
       {% for user in sftp_users %}
-      $AddUnixListenSocket /home/{{ user.name }}/dev/log
+      $AddUnixListenSocket {{ sftp_home_partition }}/{{ user.name }}/dev/log
       {% endfor %}
 
       # Log internal-sftp in a separate file
