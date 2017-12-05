@@ -32,6 +32,10 @@ The following role variables are relevant:
   * `authorized`: An optional list of files placed in `files/` which contain valid public keys for the SFTP user.
   * `sftp_directories`: A list of directories that need to be individually created for an SFTP user. Defaults to a blank list (i.e. "[]").
   * `append`: Boolean to add `sftp_group_name` to the user groups (if any) instead of setting it (default to `False`).
+* `sftp_nologin_shell`: The "nologin" user shell. (defaults to /sbin/nologin.)
+
+Notes:
+* The `sftp_nologin_shell` setting defines the shell assigned to sftp_users when the sftp user's shell is set to False. (The nologin shell ensures the user may only use SFTP and have no other login permissions.) This value may vary depending on the operating system version.
 
 
 ## Example Playbook
