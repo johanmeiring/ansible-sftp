@@ -33,7 +33,7 @@
 - name: SFTP-Server | Add sshd_config block
   blockinfile:
     dest: /etc/ssh/sshd_config
-    marker: '# {mark} SFTP-Server block'
+    marker: '# {mark} SFTP-Server {{ sftp_group_name }} block'
     block: |
       Match Group {{ sftp_group_name }}
           ChrootDirectory %h
