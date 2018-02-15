@@ -1,6 +1,4 @@
 # SFTP-Server
-[![Ansible Role](https://img.shields.io/ansible/role/991.svg)](https://galaxy.ansible.com/johanmeiring/sftp-server/) [![Software License](https://img.shields.io/badge/License-MIT-orange.svg?style=flat-round)](https://github.com/johanmeiring/awesomeminer-go-sdk/blob/master/LICENSE) [![Build Status](https://travis-ci.org/johanmeiring/ansible-sftp.svg?branch=master)](https://travis-ci.org/johanmeiring/ansible-sftp)
-
 An Ansible role which configures an OpenSSH server for chrooted SFTP access.  The role is built in such a way that it will not unnecessarily alter a user's OpenSSH customisations.  Instead, it simply changes the crucial bits that it needs to, and adds the rest of its configuration in the form of a custom config block (OpenSSH's lack of some form of conf.d/ support forces this behaviour).
 
 ## Requirements
