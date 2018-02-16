@@ -2,8 +2,11 @@
 # Creates group for SFTP users.
 - name: SFTP-Server | Create sftp user group
   group:
-    name: "{{ sftp_group_name }}"
+    name: "{{ item.name }}"
     state: present
+    gid: "{{ item.gid | default(omit) }}"
+  with_items:
+    - "{{ sftp_groups }}"
 
 # Necessary for chrooting of SFTP users.
 - name: SFTP-Server | Alter sftp subsystem entry
@@ -33,23 +36,27 @@
 - name: SFTP-Server | Add sshd_config block
   blockinfile:
     dest: /etc/ssh/sshd_config
-    marker: '# {mark} SFTP-Server {{ sftp_group_name }} block'
+    marker: '# {mark} SFTP-Server {{ item.name }} block'
     block: |
-      Match Group {{ sftp_group_name }}
+      Match Group {{ item.name }}
           ChrootDirectory %h
           AllowTCPForwarding no
           X11Forwarding no
-          ForceCommand internal-sftp {{ sftp_enable_logging | ternary('-l VERBOSE', '') }}
+          ForceCommand internal-sftp {{ sftp_enable_logging | ternary('-l VERBOSE', '') }} {% if item.readonly is defined and item.readonly %}-R{% endif %}
+
           PasswordAuthentication {{ sftp_allow_passwords | ternary('yes', 'no') }}
   notify: SFTP-Server | Restart sshd
+  with_items:
+    - "{{ sftp_groups }}"
 
 # Create each SFTP user with home directory on the correct partition, and add to SFTP group.
 - name: SFTP-Server | Create sftp users
   user:
     name: "{{ item.name }}"
-    groups: "{{ sftp_group_name }}"
+    groups: "{{ item.groups | default(omit) }}"
     append: "{{ item.append | default(False) }}"
-    home: "{{ sftp_home_partition }}/{{ item.name }}"
+    home: "{{ item.home }}"
+    uid: "{{ item.uid | default(omit) }}"
     # `None` means default value -> default is to have a shell
     shell: "{{ None if (item.shell | default(True)) else sftp_nologin_shell }}"
     state: present
@@ -58,9 +65,9 @@
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
 - name: SFTP-Server | Correct ownership and permission of home directories
   file:
-    path: "{{ sftp_home_partition }}/{{ item.name }}"
+    path: "{{ item.home }}"
     owner: root
-    group: "{{ sftp_group_name }}"
+    group: "{{ sftp_chroot_group }}"
     mode: "0750"
   with_items: "{{ sftp_users }}"
 
@@ -86,9 +93,9 @@
 # Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
   file:
-    path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
-    owner: "{{ item[0].name }}"
-    group: "{{ item[0].name }}"
+    path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
+    owner: "{{ item[1].owner | default(item[0].name) }}"
+    group: "{{ item[1].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default(0750) }}"
     state: directory
   with_nested:
@@ -98,9 +105,9 @@
 # Create directories for individual SFTP users. Optional.
 - name: SFTP-Server | Create directories per user
   file:
-    path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
-    owner: "{{ item[0].name }}"
-    group: "{{ item[0].name }}"
+    path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
+    owner: "{{ item[1].owner | default(item[0].name) }}"
+    group: "{{ item[1].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default(0750) }}"
     state: directory
   with_subelements:
@@ -111,7 +118,7 @@
 
 - name: SFTP-Server | Create dev directory for logging
   file:
-    path: "{{ sftp_home_partition }}/{{ item.name }}/dev"
+    path: "{{ item.home }}/dev"
     owner: root
     group: root
     state: directory
@@ -126,7 +133,7 @@
     block: |
       # Create an additional socket for some of the sshd chrooted users.
       {% for user in sftp_users %}
-      $AddUnixListenSocket {{ sftp_home_partition }}/{{ user.name }}/dev/log
+      $AddUnixListenSocket {{ user.home }}/dev/log
       {% endfor %}
 
       # Log internal-sftp in a separate file
