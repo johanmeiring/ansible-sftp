@@ -23,9 +23,15 @@ The following role variables are relevant:
 * `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
 * `sftp_enable_selinux_support`: Whether or not to explicitly enable SELinux support. Defaults to False.
 * `sftp_enable_logging`: Enable logging. Auth logs will be written to `/var/log/sftp/auth.log`, and SFTP activity logs will be written to `/var/log/sftp/verbose.log`. Defaults to False.
+* `sftp_groups`: A list of groups, in map form, containing the following elements:
+  * `name`: The Unix name of the group that requires SFTP access.
+  * `gid`: The group identifier.
+  * `readonly`: Whether or not to enable readonly SFTP session for the current group. Defaults to False.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
   * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
+  * `uid` : Specify the user identifier on the system
+  * `groups` : Define at which groups the user belongs to (i.e. "[]").
   * `shell`: Boolean indicating if the user should have a shell access (default to `True`).
   * `authorized`: An optional list of files placed in `files/` which contain valid public keys for the SFTP user.
   * `sftp_directories`: A list of directories that need to be individually created for an SFTP user. Defaults to a blank list (i.e. "[]").
@@ -67,7 +73,5 @@ Notes:
 ## License
 This Ansible role is distributed under the MIT License.  See the LICENSE file for more details.
 
-## Donations
-Donations are very welcome, and can be made to the following addresses:
-* BTC: 1AWHJcUBha35FnuuWat9urRW2FNc4ftztv
-* ETH: 0xAF1Aac4c40446F4C46e55614F14d9b32d712ECBc
+## Thanks
+- johanmeiring for the hard work
