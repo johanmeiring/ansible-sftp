@@ -12,6 +12,11 @@
         sftp_directories:
         - test3
         - test4
+      - name: user2
+        group: foobar
+        password: ""
+        authorized: []
+
 
   roles:
     - role_under_test

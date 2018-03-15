@@ -78,6 +78,16 @@ script:
     && (echo 'Directory created' && exit 0)
     || (echo 'Directory not created' && exit 1)
 
+  # Group specfic tests.
+  - >
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "foobar" /etc/passwd
+    && (echo 'Group created' && exit 0)
+    || (echo 'Group not created' && exit 1)
+  - >
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm [ $(stat --format %G /home/user2) = "foobar" ]
+    && (echo 'Good directory ownership' && exit 0)
+    || (echo 'Wrong directory ownership' && exit 1)
+
   # Test user-specific directory creation
   - >
     sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm test -d /home/user1/test3
