@@ -43,10 +43,17 @@
           PasswordAuthentication {{ sftp_allow_passwords | ternary('yes', 'no') }}
   notify: SFTP-Server | Restart sshd
 
+- name: SFTP-Server | Create sftp user's group
+  group:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ sftp_users | selectattr('group', 'defined') | map(attribute='group') | list }}"
+
 # Create each SFTP user with home directory on the correct partition, and add to SFTP group.
 - name: SFTP-Server | Create sftp users
   user:
     name: "{{ item.name }}"
+    group: "{{ item.group | default(omit) }}"
     groups: "{{ sftp_group_name }}"
     append: "{{ item.append | default(False) }}"
     home: "{{ sftp_home_partition }}/{{ item.name }}"
@@ -60,7 +67,7 @@
   file:
     path: "{{ sftp_home_partition }}/{{ item.name }}"
     owner: root
-    group: "{{ sftp_group_name }}"
+    group: "{{ item.group | default(sftp_group_name) }}"
     mode: "0750"
   with_items: "{{ sftp_users }}"
 
@@ -88,7 +95,7 @@
   file:
     path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
-    group: "{{ item[0].name }}"
+    group: "{{ item[0].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default(0750) }}"
     state: directory
   with_nested:
@@ -100,7 +107,7 @@
   file:
     path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
-    group: "{{ item[0].name }}"
+    group: "{{ item[0].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default(0750) }}"
     state: directory
   with_subelements:

@@ -27,6 +27,7 @@ The following role variables are relevant:
 * `sftp_enable_logging`: Enable logging. Auth logs will be written to `/var/log/sftp/auth.log`, and SFTP activity logs will be written to `/var/log/sftp/verbose.log`. Defaults to False.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
+  * `group`: An optional user primary group. If set, it will be used for the user's home permission. Otherwise, the `sftp_group_name` is used.
   * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
   * `shell`: Boolean indicating if the user should have a shell access (default to `True`).
   * `authorized`: An optional list of files placed in `files/` which contain valid public keys for the SFTP user.
