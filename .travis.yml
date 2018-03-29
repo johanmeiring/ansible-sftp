@@ -80,15 +80,15 @@ script:
 
   # Group specfic tests.
   - >
-    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "foobar" /etc/passwd
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm grep "foobar" /etc/group
     && (echo 'Group created' && exit 0)
     || (echo 'Group not created' && exit 1)
   - >
-    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm [ $(stat --format %G /home/user2) = "foobar" ]
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm '[ $(stat --format %G /home/user2) = "foobar" ]'
     && (echo 'Good directory ownership' && exit 0)
     || (echo 'Wrong directory ownership' && exit 1)
   - >
-    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm [ $(stat --format %G /home/user1) = "sftpusers" ]
+    sudo docker exec --tty "$(cat ${container_id})" env TERM=xterm '[ $(stat --format %G /home/user1) = "sftpusers" ]'
     && (echo 'Good directory ownership' && exit 0)
     || (echo 'Wrong directory ownership' && exit 1)
 
