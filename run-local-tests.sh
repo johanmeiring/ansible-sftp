@@ -26,6 +26,8 @@ run_test ubuntu 14.04 2.3.0.0
 run_test ubuntu 16.04 2.2.2.0
 run_test ubuntu 16.04 2.3.0.0
 
+run_test ubuntu 18.04 2.5.0.0
+
 run_test centos 6 2.2.2.0
 run_test centos 6 2.3.0.0
 
