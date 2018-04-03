@@ -30,6 +30,7 @@ The following role variables are relevant:
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
   * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
+  * `update_password`: Define is the password must be updated
   * `uid` : Specify the user identifier on the system
   * `groups` : Define at which groups the user belongs to (i.e. "[]").
   * `shell`: Boolean indicating if the user should have a shell access (default to `True`).

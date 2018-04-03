@@ -88,7 +88,7 @@
     name: "{{ item.name }}"
     password: "{{ item.password }}"
   with_items: "{{ sftp_users }}"
-  when: item.password is defined
+  when: "{{ item.update_password }}"
 
 # Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
