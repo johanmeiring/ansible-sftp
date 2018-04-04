@@ -17,22 +17,6 @@
     state: present
   notify: SFTP-Server | Restart sshd
 
-- name: SFTP-Server | Ensure SELinux management package is present
-  package:
-    name: "{{ 'python-semanage' if ansible_distribution == 'Debian' else 'libsemanage-python' }}"
-    state: present
-  when: ansible_selinux and sftp_enable_selinux_support
-
-- name: SFTP-Server | Set SELinux booleans
-  seboolean:
-    name: "{{ item }}"
-    state: yes
-    persistent: yes
-  with_items:
-    - ssh_chroot_full_access
-    - ssh_chroot_rw_homedirs
-  when: ansible_selinux and sftp_enable_selinux_support
-
 - name: SFTP-Server | Add sshd_config block
   blockinfile:
     dest: /etc/ssh/sshd_config
