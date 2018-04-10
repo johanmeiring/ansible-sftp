@@ -68,7 +68,7 @@
     path: "{{ sftp_home_partition }}/{{ item.name }}"
     owner: root
     group: "{{ item.group | default(sftp_group_name) }}"
-    mode: "0750"
+    mode: "{{ item.mode | default(0750) }}"
   with_items: "{{ sftp_users }}"
 
 # Install all relevant public keys.
