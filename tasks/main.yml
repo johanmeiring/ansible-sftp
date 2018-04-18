@@ -59,6 +59,7 @@
     home: "{{ sftp_home_partition }}/{{ item.name }}"
     # `None` means default value -> default is to have a shell
     shell: "{{ None if (item.shell | default(True)) else sftp_nologin_shell }}"
+    skeleton: "{{ item.skeleton | default(omit) }}"
     state: present
   with_items: "{{ sftp_users }}"
 
