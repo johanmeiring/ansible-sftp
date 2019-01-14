@@ -13,6 +13,7 @@
         - test3
         - test4
       - name: user2
+        home: /var/tmp/user2
         group: foobar
         password: ""
         authorized: []

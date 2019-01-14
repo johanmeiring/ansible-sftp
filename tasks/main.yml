@@ -1,4 +1,12 @@
 ---
+- name: "Compute SFTP users."
+  set_fact:
+    _sftp_users: >-
+      [{% for sftp_user in sftp_users -%}
+        {{ sftp_user | combine({'home': sftp_user.home | default(sftp_home_partition + '/' + sftp_user.name) }) }}
+        {{ '' if loop.last else ',' }}
+      {%- endfor %}]
+
 # Creates group for SFTP users.
 - name: SFTP-Server | Create sftp user group
   group:
@@ -47,7 +55,7 @@
   group:
     name: "{{ item }}"
     state: present
-  with_items: "{{ sftp_users | selectattr('group', 'defined') | map(attribute='group') | list }}"
+  with_items: "{{ _sftp_users | selectattr('group', 'defined') | map(attribute='group') | list }}"
 
 # Create each SFTP user with home directory on the correct partition, and add to SFTP group.
 - name: SFTP-Server | Create sftp users
@@ -56,21 +64,21 @@
     group: "{{ item.group | default(omit) }}"
     groups: "{{ sftp_group_name }}"
     append: "{{ item.append | default(False) }}"
-    home: "{{ sftp_home_partition }}/{{ item.name }}"
+    home: "{{ item.home }}"
     # `None` means default value -> default is to have a shell
     shell: "{{ None if (item.shell | default(True)) else sftp_nologin_shell }}"
     skeleton: "{{ item.skeleton | default(omit) }}"
     state: present
-  with_items: "{{ sftp_users }}"
+  with_items: "{{ _sftp_users }}"
 
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
 - name: SFTP-Server | Correct ownership and permission of home directories
   file:
-    path: "{{ sftp_home_partition }}/{{ item.name }}"
+    path: "{{ item.home }}"
     owner: root
     group: "{{ item.group | default(sftp_group_name) }}"
     mode: "{{ item.mode | default(0750) }}"
-  with_items: "{{ sftp_users }}"
+  with_items: "{{ _sftp_users }}"
 
 # Install all relevant public keys.
 - name: SFTP-Server | Install public keys
@@ -78,7 +86,7 @@
     user: "{{ item.0.name }}"
     key: "{{ lookup('file', item.1) }}"
   with_subelements:
-    - "{{ sftp_users }}"
+    - "{{ _sftp_users }}"
     - authorized
     - flags:
       skip_missing: True
@@ -88,43 +96,43 @@
   user:
     name: "{{ item.name }}"
     password: "{{ item.password }}"
-  with_items: "{{ sftp_users }}"
+  with_items: "{{ _sftp_users }}"
   when: item.password is defined
 
 # Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
   file:
-    path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
+    path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
     group: "{{ item[0].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default(0750) }}"
     state: directory
   with_nested:
-    - "{{ sftp_users }}"
+    - "{{ _sftp_users }}"
     - "{{ sftp_directories }}"
 
 # Create directories for individual SFTP users. Optional.
 - name: SFTP-Server | Create directories per user
   file:
-    path: "{{ sftp_home_partition }}/{{ item[0].name }}/{{ item[1].name | default(item[1]) }}"
+    path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
     group: "{{ item[0].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default(0750) }}"
     state: directory
   with_subelements:
-    - "{{ sftp_users }}"
+    - "{{ _sftp_users }}"
     - "sftp_directories"
     - flags:
       skip_missing: True
 
 - name: SFTP-Server | Create dev directory for logging
   file:
-    path: "{{ sftp_home_partition }}/{{ item.name }}/dev"
+    path: "{{ item[0].home }}/dev"
     owner: root
     group: root
     state: directory
   with_items:
-    - "{{ sftp_users }}"
+    - "{{ _sftp_users }}"
   when: sftp_enable_logging
 
 - name: SFTP-Server | Enable Logging
