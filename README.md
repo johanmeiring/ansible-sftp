@@ -38,6 +38,7 @@ The following role variables are relevant:
   * `append`: Boolean to add `sftp_group_name` to the user groups (if any) instead of setting it (default to `False`).
   * `mode`: The users home directory mode (defaults to `0750`).
   * `skeleton`: An optional home skeleton directory (e.g: /dev/null). Default to system defaults.
+  * `home`: An optional home directory (e.g: /home/bob). Default to `sftp_home_partition/name`.
 * `sftp_nologin_shell`: The "nologin" user shell. (defaults to /sbin/nologin.)
 
 Notes:
@@ -63,6 +64,7 @@ Notes:
       - name: sally
         password: ""
         authorized: [sally.pub]
+        home: /var/tmp/sally
         append: True
     - sftp_directories:
       - imports
