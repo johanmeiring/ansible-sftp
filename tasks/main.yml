@@ -127,7 +127,7 @@
 
 - name: SFTP-Server | Create dev directory for logging
   file:
-    path: "{{ item[0].home }}/dev"
+    path: "{{ item.home }}/dev"
     owner: root
     group: root
     state: directory
