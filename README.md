@@ -49,29 +49,38 @@ Notes:
   hosts: all
   become: yes
   become_user: root
-  vars:
-    - sftp_users:
-      - name: peter
-        password: "$1$salty$li5TXAa2G6oxHTDkqx3Dz/" # passpass
-        shell: False
-        sftp_directories:
-        - directory_only_for_peter1
-        - directory_only_for_peter2
-      - name: sally
-        password: ""
-        authorized: [sally.pub]
-        append: True
-    - sftp_directories:
-      - imports
-      - exports
-      - { name: public, mode: 755 }
-      - other
+
   roles:
-    - sftp-server
+    - role: ansible-role-sftp
+      sftp_allow_passwords: true
+      sftp_enable_logging: true
+      sftp_groups:
+        - name: sftpusers
+          gid: 1337
+      sftp_directories:
+        - imports
+        - exports
+        - { name: public, mode: 755, group: 'sftpusers' }
+      sftp_users:
+        - name: peter
+          password: "$1$salty$li5TXAa2G6oxHTDkqx3Dz/" # passpass
+          shell: False
+          append: True
+          groups:
+            - sftpusers
+          sftp_directories:
+            - directory_only_for_peter1
+            - directory_only_for_peter2
+        - name: sally
+          password: ""
+          authorized: [sally.pub]
+          append: True
+
 ```
 
 ## License
 This Ansible role is distributed under the MIT License.  See the LICENSE file for more details.
 
 ## Thanks
-- johanmeiring for the hard work
+- [johanmeiring](https://github.com/johanmeiring) for the hard work
+- [Scalair](https://scalair.fr)
