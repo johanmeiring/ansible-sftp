@@ -11,7 +11,7 @@ It is advisable that `scp_if_ssh` be set to `true` in the `ssh_connection` secti
 scp_if_ssh=True
 ```
 
-Other than that, only Ansible itself is required.  Tested using Ansible 2.0.2.0, 2.2.2.0 and 2.3.0.0.  Works on Ubuntu 14.04 and 16.04, untested on other versions.  Some work has been done on supporting RHEL, though this is not currently officially supported by the original author (further contributions are obviously welcome ;-)
+Other than that, only Ansible itself is required.  Tested using Ansible 2.0.2.0, 2.2.2.0 and 2.3.0.0, and 2.8.2.x  Works on Ubuntu 14.04, 16.04 and 18.04. Untested on other versions.  Some work has been done on supporting RHEL, though this is not currently officially supported by the original author (further contributions are obviously welcome ;-)
 
 ## Role Variables
 The following role variables are relevant:
@@ -19,8 +19,8 @@ The following role variables are relevant:
 * `sftp_home_partition`: The partition where SFTP users' home directories will be located.  Defaults to "/home".
 * `sftp_group_name`: The name of the Unix group to which all SFTP users must belong.  Defaults to "sftpusers".
 * `sftp_directories`: A list of directories that need to be created automatically by default for all SFTP user. Defaults to a blank list (i.e. "[]").
-  * Values can be plain strings, or dictionaries containing `name` and (optionally) `mode` key/value pairs.
-* `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
+  * Values can be plain strings, or dictionaries containing `name`, `group` and `mode` key/value pairs. (an ansible bug force us to accept only 3 digits for `mode`, not 4)
+* `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP users. Defaults to False. NOTE: if global SSH configuration does not allow to use passwords, setting this to True will not work (see and adapt `PasswordAuthentication` from SSH configuration).
 * `sftp_enable_logging`: Enable logging. Auth logs will be written to `/var/log/sftp/auth.log`, and SFTP activity logs will be written to `/var/log/sftp/verbose.log`. Defaults to False.
 * `sftp_groups`: A list of groups, in map form, containing the following elements:
   * `name`: The Unix name of the group that requires SFTP access.
@@ -28,8 +28,8 @@ The following role variables are relevant:
   * `readonly`: Whether or not to enable readonly SFTP session for the current group. Defaults to False.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
-  * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
-  * `update_password`: Define is the password must be updated
+  * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`. See [how to generate encrypted password](https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally. NOTE2: when updating this value, please check `update_password` property.
+  * `update_password`: Set it to true when you need to force the password to be changed.
   * `uid` : Specify the user identifier on the system
   * `groups` : Define at which groups the user belongs to (i.e. "[]").
   * `shell`: Boolean indicating if the user should have a shell access (default to `True`).

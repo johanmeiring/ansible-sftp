@@ -72,7 +72,7 @@
     name: "{{ item.name }}"
     password: "{{ item.password }}"
   with_items: "{{ sftp_users }}"
-  when: "{{ item.update_password }}"
+  when: "{{ item.update_password | default(False) }}"
 
 # Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
