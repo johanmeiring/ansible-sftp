@@ -28,7 +28,7 @@ The following role variables are relevant:
   * `readonly`: Whether or not to enable readonly SFTP session for the current group. Defaults to False.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
-  * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`. See [how to generate encrypted password](https://docs.ansible.com/ansible/latest/reference_appendices/faq.html#how-do-i-generate-encrypted-passwords-for-the-user-module). NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally. NOTE2: when updating this value, please check `update_password` property.
+  * `password`: A password hash for the user to login with.  Blank passwords can be set with `password: ""`. See 'Notes' section above to checkout out how generate hashed password from plain-text password. NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally. NOTE2: when updating this value, please check `update_password` property.
   * `update_password`: Set it to true when you need to force the password to be changed.
   * `uid` : Specify the user identifier on the system
   * `groups` : Define at which groups the user belongs to (i.e. "[]").
@@ -38,9 +38,23 @@ The following role variables are relevant:
   * `append`: Boolean to add `sftp_group_name` to the user groups (if any) instead of setting it (default to `False`).
 * `sftp_nologin_shell`: The "nologin" user shell. (defaults to /sbin/nologin.)
 
-Notes:
+## Notes
 * The `sftp_nologin_shell` setting defines the shell assigned to sftp_users when the sftp user's shell is set to False. (The nologin shell ensures the user may only use SFTP and have no other login permissions.) This value may vary depending on the operating system version.
-
+* Here is the way to generate a hashed password for `sftp_users`. The associated hash must be set into the `password` attribute.
+```
+pass='mypa$$w*rd' && ansible all -i localhost, -m debug -a "msg={{ '${pass}' | password_hash('sha512', 'mysecretsalt') }}"
+localhost | SUCCESS => {
+    "msg": "$6$mysecretsalt$CwBxxKCk8CiFIRrIW6pduZ5U0b8pcEaaSMTfDFrkxjwnFjCLP4Uv.5QGwnnKxfQpbi4nHcTPW1CY1iBpVQRcE/"
+}
+```
+Every '\' char in the plain-text password must be backslashed :
+```
+pass='mypa\\word' && ansible all -i localhost, -m debug -a "msg={{ '${pass}' | password_hash('sha512', 'mysecretsalt') }}"
+localhost | SUCCESS => {
+    "msg": "$6$mysecretsalt$WVhiKVoovyRrQ8AY9Q.l6BV797wWSkmnhgAMPvtXwO5HVNRD1r0bArRYvLnh9Uu0gh0urkeeybdJhoaXpYi270"
+}
+```
+In the last example, the real password is 'mypa\word'
 
 ## Example Playbook
 ```yaml
