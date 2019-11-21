@@ -47,7 +47,7 @@ localhost | SUCCESS => {
     "msg": "$6$mysecretsalt$CwBxxKCk8CiFIRrIW6pduZ5U0b8pcEaaSMTfDFrkxjwnFjCLP4Uv.5QGwnnKxfQpbi4nHcTPW1CY1iBpVQRcE/"
 }
 ```
-Every '\' char in the plain-text password must be backslashed :
+Every '\\' char in the plain-text password must be backslashed :
 ```
 pass='mypa\\word' && ansible all -i localhost, -m debug -a "msg={{ '${pass}' | password_hash('sha512', 'mysecretsalt') }}"
 localhost | SUCCESS => {
