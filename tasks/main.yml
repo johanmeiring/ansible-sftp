@@ -80,16 +80,23 @@
     mode: "{{ item.mode | default(0750) }}"
   with_items: "{{ _sftp_users }}"
 
-# Install all relevant public keys.
-- name: SFTP-Server | Install public keys
-  authorized_key:
-    user: "{{ item.0.name }}"
-    key: "{{ lookup('file', item.1) }}"
+# Slurp all relevant public keys to prepare their installation
+- name: SFTP-Server | Slurp public keys values
+  slurp:
+    src: "{{ item.1 }}"
+  register: _sftp_publickeys
   with_subelements:
     - "{{ _sftp_users }}"
     - authorized
     - flags:
       skip_missing: True
+
+# Install all relevant public keys.
+- name: SFTP-Server | Install public keys
+  authorized_key:
+    user: "{{ item.item.0.name }}"
+    key: "{{ item.content | b64decode }}"
+  with_items: "{{ _sftp_publickeys.results }}"
 
 # Update user passwords, if they were specified.
 - name: SFTP-Server | Update user passwords
