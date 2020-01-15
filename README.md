@@ -25,6 +25,7 @@ The following role variables are relevant:
 * `sftp_group_name`: The name of the Unix group to which all SFTP users must belong.  Defaults to "sftpusers".
 * `sftp_directories`: A list of directories that need to be created automatically by default for all SFTP user. Defaults to a blank list (i.e. "[]").
   * Values can be plain strings, or dictionaries containing `name` and (optionally) `mode` key/value pairs.
+* `sftp_start_directory`: A directory that need to be part of sftp_directories values and that is the start directory of new sftp connection. Disable by default with an empty string value.
 * `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
 * `sftp_enable_selinux_support`: Whether or not to explicitly enable SELinux support. Defaults to False.
 * `sftp_enable_logging`: Enable logging. Auth logs will be written to `/var/log/sftp/auth.log`, and SFTP activity logs will be written to `/var/log/sftp/verbose.log`. Defaults to False.
