@@ -3,15 +3,28 @@ galaxy_info:
   author: Johan Meiring
   description: "Setup chrooted SFTP service on top of OpenSSH"
   license: MIT
-  min_ansible_version: 2.0
+  min_ansible_version: 2.5
 
   platforms:
-  - name: Ubuntu
-    versions:
-    - all
+    - name: Ubuntu
+      versions:
+        - xenial
+        - yakkety
+        - zesty
+        - artful
+        - bionic
+        - cosmic
+        - disco
+        - eoan
+    - name: EL
+      versions:
+        - 7
+        - 8
 
   galaxy_tags:
     - networking
     - system
+    - sftp
+    - ssh
 
 dependencies: []
