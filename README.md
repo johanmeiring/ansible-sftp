@@ -37,6 +37,8 @@ The following role variables are relevant:
   * `sftp_directories`: A list of directories that need to be individually created for an SFTP user. Defaults to a blank list (i.e. "[]").
   * `append`: Boolean to add `sftp_group_name` to the user groups (if any) instead of setting it (default to `False`).
 * `sftp_nologin_shell`: The "nologin" user shell. (defaults to /sbin/nologin.)
+* `sftp_nologin_shell`: The "nologin" user shell. (defaults to /sbin/nologin.)
+* `sftp_host_keys`: Dictionnary of ssh host keys. Useful when you want to use custom ssh host keys. For example when you need to share the same ssh host keys on several hosts.
 
 ## Notes
 * The `sftp_nologin_shell` setting defines the shell assigned to sftp_users when the sftp user's shell is set to False. (The nologin shell ensures the user may only use SFTP and have no other login permissions.) This value may vary depending on the operating system version.
@@ -89,6 +91,9 @@ In the last example, the real password is 'mypa\word'
           password: ""
           authorized: [sally.pub]
           append: True
+      sftp_host_keys:
+        rsa: "ssh-rsa 8mKWxzxGTBQpwVAYVm8mKWxzxGTBQpwVAYVm8mKWxzxGTBQpwVAYVm root@ip-172-31-6-3"
+        dsa: "ssh-dss qF+nlhDHHGw4yb3M+yvkxPO6HTbJTK4FKHCNc9e8ThgL5oQwDSOA== root@ip-172-31-6-32"
 
 ```
 

@@ -128,3 +128,14 @@
       auth,authpriv.*  /var/log/sftp/auth.log
   when: sftp_enable_logging
   notify: SFTP-Server | Restart rsyslog
+
+# Handle with custom sftp_host_keys
+  - name: SFTP-Server | Create SSH host keys
+    copy:
+      path: "/etc/ssh/ssh_host_{{ item.key }}_key.pub"
+      owner: root
+      group: root
+      mode: 0644
+      content: "{{ item.value }}"
+    when: sftp_host_keys is defined
+    with_dict: "{{ sftp_host_keys }}"
