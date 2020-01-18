@@ -2,42 +2,42 @@
 sudo: required
 
 env:
-  - ansible: 2.5.15.0
+  - ansible: 2.5
     distribution: ubuntu
     version: 16.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.9.2.0
+  - ansible: 2.9
     distribution: ubuntu
     version: 16.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.5.15.0
+  - ansible: 2.5
     distribution: ubuntu
     version: 18.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.9.2.0
+  - ansible: 2.9
     distribution: ubuntu
     version: 18.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.5.15.0
+  - ansible: 2.5
     distribution: centos
     version: 7
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.9.2.0
+  - ansible: 2.9
     distribution: centos
     version: 7
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.5.15.0
+  - ansible: 2.5
     distribution: centos
     version: 8
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.9.2.0
+  - ansible: 2.9
     distribution: centos
     version: 8
     init: /sbin/init

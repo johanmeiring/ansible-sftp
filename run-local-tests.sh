@@ -21,14 +21,14 @@ run_test() {
   docker stop "$(cat ${container_id})"
 }
 
-run_test ubuntu 16.04 2.5.15.0
-run_test ubuntu 16.04 2.9.2.0
+run_test ubuntu 16.04 2.5
+run_test ubuntu 16.04 2.9
 
-run_test ubuntu 18.04 2.5.15.0
-run_test ubuntu 18.04 2.9.2.0
+run_test ubuntu 18.04 2.5
+run_test ubuntu 18.04 2.9
 
-run_test centos 7 2.5.15.0
-run_test centos 7 2.9.2.0
+run_test centos 7 2.5
+run_test centos 7 2.9
 
-run_test centos 8 2.5.15.0
-run_test centos 8 2.9.2.0
+run_test centos 8 2.5
+run_test centos 8 2.9

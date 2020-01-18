@@ -1,4 +1,4 @@
-FROM centos:7
+FROM centos:8
 RUN yum -y update
 
 # Install OpenSSH server
@@ -8,8 +8,8 @@ RUN yum install -y openssh-server epel-release libffi-devel gcc
 RUN yum install -y python3-pip python3-devel openssl-devel
 #software-properties-common git  python-dev libffi-dev libssl-dev
 RUN pip3 install -U setuptools
-RUN pip3 install 'ansible==2.5.15.0'
-RUN alternatives --install /usr/bin/python python /usr/bin/python3 60
+RUN pip3 install 'ansible~=2.5.0'
+RUN alternatives --set python /usr/bin/python3
 
 # Install Ansible inventory file
 RUN mkdir /etc/ansible/ && echo "localhost ansible_connection=local" > /etc/ansible/hosts
