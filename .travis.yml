@@ -2,49 +2,44 @@
 sudo: required
 
 env:
-  - ansible: 2.0.2.0
-    distribution: ubuntu
-    version: 14.04
-    init: /sbin/init
-    run_opts: ""
-  - ansible: 2.2.2.0
-    distribution: ubuntu
-    version: 14.04
-    init: /sbin/init
-    run_opts: ""
-  - ansible: 2.2.2.0
+  - ansible: 2.5
     distribution: ubuntu
     version: 16.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.3.0.0
-    distribution: ubuntu
-    version: 14.04
-    init: /sbin/init
-    run_opts: ""
-  - ansible: 2.3.0.0
+  - ansible: 2.9
     distribution: ubuntu
     version: 16.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.2.2.0
-    distribution: centos
-    version: 6
+  - ansible: 2.5
+    distribution: ubuntu
+    version: 18.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.3.0.0
-    distribution: centos
-    version: 6
+  - ansible: 2.9
+    distribution: ubuntu
+    version: 18.04
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.2.2.0
+  - ansible: 2.5
     distribution: centos
     version: 7
     init: /sbin/init
     run_opts: ""
-  - ansible: 2.3.0.0
+  - ansible: 2.9
     distribution: centos
     version: 7
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.5
+    distribution: centos
+    version: 8
+    init: /sbin/init
+    run_opts: ""
+  - ansible: 2.9
+    distribution: centos
+    version: 8
     init: /sbin/init
     run_opts: ""
 
@@ -53,9 +48,9 @@ services:
 
 before_install:
   # Pull container
-  - 'sudo docker pull ${distribution}:${version}'
+  - "sudo docker pull ${distribution}:${version}"
   # Customize container
-  - 'sudo docker build --rm=true --file=tests/Dockerfile.${distribution}-${version}.ansible-${ansible} --tag=${distribution}-${version}:ansible-${ansible} tests'
+  - "sudo docker build --rm=true --file=tests/Dockerfile.${distribution}-${version}.ansible-${ansible} --tag=${distribution}-${version}:ansible-${ansible} tests"
 
 script:
   - container_id=$(mktemp)
@@ -106,6 +101,5 @@ script:
     || (echo 'Idempotence test: fail' && exit 1)
   # Clean up
   - 'sudo docker stop "$(cat ${container_id})"'
-
 # notifications:
-  # webhooks: https://galaxy.ansible.com/api/v1/notifications/
+# webhooks: https://galaxy.ansible.com/api/v1/notifications/

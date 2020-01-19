@@ -1,0 +1,14 @@
+FROM ubuntu:18.04
+RUN apt-get update
+
+# Install OpenSSH server
+RUN apt-get install -y openssh-server
+
+# Install Ansible
+RUN apt-get install -y software-properties-common git python3-pip python3-dev libffi-dev libssl-dev
+RUN pip3 install -U setuptools
+RUN pip3 install 'ansible~=2.9.0'
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 10
+
+# Install Ansible inventory file
+RUN mkdir /etc/ansible/ && echo "[local]\nlocalhost ansible_connection=local" > /etc/ansible/hosts
