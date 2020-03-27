@@ -68,9 +68,9 @@
     groups: "{{ sftp_group_name }}"
     append: "{{ item.append | default(False) }}"
     home: "{{ item.home }}"
-    # `None` means default value -> default is to have a shell
-    shell: "{{ None if (item.shell | default(True)) else sftp_nologin_shell }}"
-    skeleton: "{{ item.skeleton | default(omit) }}"
+    # `None` means default value -> default is to have no login shell
+    shell: "{{ None if (item.shell | default(sftp_login_shell) | default(False)) else sftp_nologin_shell }}"
+    skeleton: "{{ item.skeleton | default(sftp_home_skeleton) | default(omit) }}"
     state: present
   with_items: "{{ _sftp_users }}"
 
