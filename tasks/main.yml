@@ -157,7 +157,7 @@
       {% endfor %}
 
       # Log internal-sftp in a separate file
-      :programname, isequal, "internal-sftp" -/var/log/sftp/verbose.log
+      :programname, isequal, "internal-sftp" {{ sftp_logging_destination }}
       :programname, isequal, "internal-sftp" ~
   when: sftp_enable_logging
   notify: SFTP-Server | Restart rsyslog

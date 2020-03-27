@@ -7,4 +7,5 @@ sftp_allow_passwords: False
 sftp_enable_selinux_support: False
 sftp_enable_logging: False
 sftp_nologin_shell: /sbin/nologin
+sftp_logging_destination: -/var/log/sftp/verbose.log
 sftp_configure_sshd: true
