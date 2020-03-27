@@ -157,9 +157,6 @@
       # Log internal-sftp in a separate file
       :programname, isequal, "internal-sftp" -/var/log/sftp/verbose.log
       :programname, isequal, "internal-sftp" ~
-
-      # additionally write an auth log
-      auth,authpriv.*  /var/log/sftp/auth.log
   when: sftp_enable_logging
   notify: SFTP-Server | Restart rsyslog
 
