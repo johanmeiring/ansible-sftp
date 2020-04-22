@@ -46,6 +46,7 @@
       Match Group {{ sftp_group_name }}
           ChrootDirectory %h
           AllowTCPForwarding no
+          PermitTunnel no
           X11Forwarding no
           ForceCommand internal-sftp {{ sftp_enable_logging | ternary('-l VERBOSE', '') }} {{ (sftp_start_directory in sftp_directories) | ternary('-d /' + sftp_start_directory, '') }}
           PasswordAuthentication {{ sftp_allow_passwords | ternary('yes', 'no') }}
