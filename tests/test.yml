@@ -5,7 +5,9 @@
     sftp_directories:
       - test1
       - test2
-    sftp_start_directory: test1
+      - name: test5
+        mode: 770
+    sftp_start_directory: test5
     sftp_users:
       - name: user1
         password: ""
