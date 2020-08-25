@@ -73,6 +73,14 @@
   with_items: "{{ _sftp_users }}"
 
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
+- name: SFTP-Server | Root SFTP permissions
+  file:
+   path: "{{ sftp_home_partition }}"
+   state: directory
+   mode: 0750
+   group: "{{ sftp_group_name }}"
+   owner: root
+
 - name: SFTP-Server | Correct ownership and permission of home directories
   file:
     path: "{{ item.home }}"
