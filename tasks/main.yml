@@ -73,13 +73,17 @@
   with_items: "{{ _sftp_users }}"
 
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
-- name: SFTP-Server | Root SFTP permissions
-  file:
-    path: "{{ sftp_home_partition }}"
-    state: directory
-    mode: 0750
-    group: "{{ sftp_group_name }}"
-    owner: root
+# Temporarily removing the task below until we find a solution which does not
+# set the permissions of e.g. /home
+# Original issue: https://github.com/johanmeiring/ansible-sftp/issues/46
+# New issue: https://github.com/johanmeiring/ansible-sftp/issues/49
+# - name: SFTP-Server | Root SFTP permissions
+#   file:
+#     path: "{{ sftp_home_partition }}"
+#     state: directory
+#     mode: 0750
+#     group: "{{ sftp_group_name }}"
+#     owner: root
 
 - name: SFTP-Server | Correct ownership and permission of home directories
   file:
