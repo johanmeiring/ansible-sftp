@@ -41,6 +41,7 @@ The following role variables are relevant:
   * `mode`: The users home directory mode (defaults to `0750`).
   * `skeleton`: An optional home skeleton directory (e.g: /dev/null). Default to system defaults.
   * `home`: An optional home directory (e.g: /home/bob). Default to `sftp_home_partition/name`.
+  * `uid`: An optional UID of the sftp user.
 * `sftp_login_shell`: Boolean indicating if the users should have a shell access (default to `False`).
 * `sftp_nologin_shell`: The "nologin" user shell. (defaults to /sbin/nologin.)
 * `sftp_home_skeleton`: An optional home skeleton directory (e.g: /dev/null). Default to system defaults.
