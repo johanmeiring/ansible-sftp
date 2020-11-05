@@ -72,6 +72,7 @@
     shell: "{{ None if (item.shell | default(sftp_login_shell) | default(False)) else sftp_nologin_shell }}"
     skeleton: "{{ item.skeleton | default(sftp_home_skeleton) | default(omit) }}"
     state: present
+    uid: "{{ item.uid | default(omit) }}"
   with_items: "{{ _sftp_users }}"
 
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
