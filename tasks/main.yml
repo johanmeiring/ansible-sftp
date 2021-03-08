@@ -64,6 +64,7 @@
 - name: SFTP-Server | Create sftp users
   user:
     name: "{{ item.name }}"
+    password: "{{ item.password | default(omit) }}"
     group: "{{ item.group | default(omit) }}"
     groups: "{{ sftp_group_name }}"
     append: "{{ item.append | default(False) }}"
@@ -102,14 +103,6 @@
     - authorized
     - flags:
       skip_missing: True
-
-# Update user passwords, if they were specified.
-- name: SFTP-Server | Update user passwords
-  user:
-    name: "{{ item.name }}"
-    password: "{{ item.password }}"
-  with_items: "{{ _sftp_users }}"
-  when: item.password is defined
 
 # Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
