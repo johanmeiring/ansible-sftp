@@ -28,19 +28,24 @@ The following role variables are relevant:
 * `sftp_start_directory`: A directory that need to be part of sftp_directories values and that is the start directory of new sftp connection. Disable by default with an empty string value.
 * `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
 * `sftp_enable_selinux_support`: Whether or not to explicitly enable SELinux support. Defaults to False.
-* `sftp_enable_logging`: Enable logging. Auth logs will be written to `/var/log/sftp/auth.log`, and SFTP activity logs will be written to `/var/log/sftp/verbose.log`. Defaults to False.
+* `sftp_enable_logging`: Enable logging; defaults to `False`.
+* `sftp_logging_destination`: Rsyslogd destination for SFTP activity logs; defaults to  `-/var/log/sftp/verbose.log`.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
   * `group`: An optional user primary group. If set, it will be used for the user's home permission. Otherwise, the `sftp_group_name` is used.
   * `password`: A password hash for the user to login with - ie `openssl passwd -1 -salt salty passpass`.  Blank passwords can be set with `password: ""`.  NOTE: It appears that `UsePAM yes` and `PermitEmptyPassword yes` need to be set in `sshd_config` in order for blank passwords to work properly.  Making those changes currently falls outside the scope of this role and will need to be done externally.
-  * `shell`: Boolean indicating if the user should have a shell access (default to `True`).
+  * `shell`: Boolean indicating if the user should have a shell access (default to `False`).
   * `authorized`: An optional list of files placed in `files/` which contain valid public keys for the SFTP user.
   * `sftp_directories`: A list of directories that need to be individually created for an SFTP user. Defaults to a blank list (i.e. "[]").
   * `append`: Boolean to add `sftp_group_name` to the user groups (if any) instead of setting it (default to `False`).
   * `mode`: The users home directory mode (defaults to `0750`).
   * `skeleton`: An optional home skeleton directory (e.g: /dev/null). Default to system defaults.
   * `home`: An optional home directory (e.g: /home/bob). Default to `sftp_home_partition/name`.
+  * `uid`: An optional UID of the sftp user.
+* `sftp_login_shell`: Boolean indicating if the users should have a shell access (default to `False`).
 * `sftp_nologin_shell`: The "nologin" user shell. (defaults to /sbin/nologin.)
+* `sftp_home_skeleton`: An optional home skeleton directory (e.g: /dev/null). Default to system defaults.
+* `sftp_configure_sshd`: Boolean indicating if sshd configuration should be altered. Defaults to `true`. 
 
 Notes:
 

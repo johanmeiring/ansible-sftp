@@ -21,6 +21,7 @@
     line: "Subsystem sftp internal-sftp -f AUTH -l VERBOSE"
     state: present
   notify: SFTP-Server | Restart sshd
+  when: sftp_configure_sshd
 
 - name: SFTP-Server | Ensure SELinux management package is present
   package:
@@ -51,6 +52,7 @@
           ForceCommand internal-sftp {{ sftp_enable_logging | ternary('-l VERBOSE', '') }} {{ (sftp_start_directory in sftp_directories or sftp_start_directory in sftp_directories | selectattr("name", "defined") | map(attribute='name') | list) | ternary('-d /' + sftp_start_directory, '') }}
           PasswordAuthentication {{ sftp_allow_passwords | ternary('yes', 'no') }}
   notify: SFTP-Server | Restart sshd
+  when: sftp_configure_sshd
 
 - name: SFTP-Server | Create sftp user's group
   group:
@@ -62,14 +64,16 @@
 - name: SFTP-Server | Create sftp users
   user:
     name: "{{ item.name }}"
+    password: "{{ item.password | default(omit) }}"
     group: "{{ item.group | default(omit) }}"
     groups: "{{ sftp_group_name }}"
     append: "{{ item.append | default(False) }}"
     home: "{{ item.home }}"
-    # `None` means default value -> default is to have a shell
-    shell: "{{ None if (item.shell | default(True)) else sftp_nologin_shell }}"
-    skeleton: "{{ item.skeleton | default(omit) }}"
+    # `None` means default value -> default is to have no login shell
+    shell: "{{ None if (item.shell | default(sftp_login_shell) | default(False)) else sftp_nologin_shell }}"
+    skeleton: "{{ item.skeleton | default(sftp_home_skeleton) | default(omit) }}"
     state: present
+    uid: "{{ item.uid | default(omit) }}"
   with_items: "{{ _sftp_users }}"
 
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
@@ -103,14 +107,6 @@
     - authorized
     - flags:
       skip_missing: True
-
-# Update user passwords, if they were specified.
-- name: SFTP-Server | Update user passwords
-  user:
-    name: "{{ item.name }}"
-    password: "{{ item.password }}"
-  with_items: "{{ _sftp_users }}"
-  when: item.password is defined
 
 # Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
@@ -159,11 +155,8 @@
       {% endfor %}
 
       # Log internal-sftp in a separate file
-      :programname, isequal, "internal-sftp" -/var/log/sftp/verbose.log
+      :programname, isequal, "internal-sftp" {{ sftp_logging_destination }}
       :programname, isequal, "internal-sftp" ~
-
-      # additionally write an auth log
-      auth,authpriv.*  /var/log/sftp/auth.log
   when: sftp_enable_logging
   notify: SFTP-Server | Restart rsyslog
 
