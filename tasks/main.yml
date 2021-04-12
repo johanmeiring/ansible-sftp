@@ -81,7 +81,7 @@
   file:
     path: "{{ sftp_home_partition }}"
     state: directory
-    mode: 0750
+    mode: 0755
     group: "{{ sftp_group_name }}"
     owner: root
 
@@ -89,7 +89,7 @@
   file:
     path: "{{ item.home }}"
     owner: root
-    group: "{{ item.group | default(sftp_group_name) }}"
+    group: "{{ item.group | default(item.name) }}"
     mode: "{{ item.mode | default(0750) }}"
   with_items: "{{ _sftp_users }}"
 
