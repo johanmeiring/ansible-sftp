@@ -90,7 +90,7 @@
     path: "{{ item.home }}"
     owner: root
     group: "{{ item.group | default(sftp_group_name) }}"
-    mode: "{{ item.mode | default(0750) }}"
+    mode: "{{ item.mode | default('0750') }}"
   with_items: "{{ _sftp_users }}"
 
 # Install all relevant public keys.
@@ -118,7 +118,7 @@
     path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
     group: "{{ item[0].group | default(item[0].name) }}"
-    mode: "{{ item[1].mode | default(0750) }}"
+    mode: "{{ item[1].mode | default('0750') }}"
     state: directory
   with_nested:
     - "{{ _sftp_users }}"
@@ -130,7 +130,7 @@
     path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
     group: "{{ item[0].group | default(item[0].name) }}"
-    mode: "{{ item[1].mode | default(0750) }}"
+    mode: "{{ item[1].mode | default('0750') }}"
     state: directory
   with_subelements:
     - "{{ _sftp_users }}"
