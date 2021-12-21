@@ -29,6 +29,7 @@ The following role variables are relevant:
 * `sftp_allow_passwords`: Whether or not to allow password authentication for SFTP. Defaults to False.
 * `sftp_enable_selinux_support`: Whether or not to explicitly enable SELinux support. Defaults to False.
 * `sftp_enable_logging`: Enable logging. Auth logs will be written to `/var/log/sftp/auth.log`, and SFTP activity logs will be written to `/var/log/sftp/verbose.log`. Defaults to False.
+* `sftp_umask`: A string representing a umask value to be used by the sftp server process. Defaults to an empty string, in which case the OS default will be used.
 * `sftp_users`: A list of users, in map form, containing the following elements:
   * `name`: The Unix name of the user that requires SFTP access.
   * `group`: An optional user primary group. If set, it will be used for the user's home permission. Otherwise, the `sftp_group_name` is used.
