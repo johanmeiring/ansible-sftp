@@ -28,8 +28,8 @@
 - name: SFTP-Server | Set SELinux booleans
   seboolean:
     name: "{{ item }}"
-    state: yes
-    persistent: yes
+    state: true
+    persistent: true
   with_items:
     - ssh_chroot_full_access
     - ssh_chroot_rw_homedirs
@@ -99,7 +99,7 @@
     - "{{ _sftp_users }}"
     - authorized
     - flags:
-      skip_missing: True
+      skip_missing: true
 
 # Update user passwords, if they were specified.
 - name: SFTP-Server | Update user passwords
@@ -133,7 +133,7 @@
     - "{{ _sftp_users }}"
     - "sftp_directories"
     - flags:
-      skip_missing: True
+      skip_missing: true
 
 - name: SFTP-Server | Create dev directory for logging
   file:
@@ -148,7 +148,7 @@
 - name: SFTP-Server | Enable Logging
   blockinfile:
     dest: "/etc/rsyslog.d/sshd.conf"
-    create: yes
+    create: true
     block: |
       # Create an additional socket for some of the sshd chrooted users.
       {% for user in sftp_users %}
