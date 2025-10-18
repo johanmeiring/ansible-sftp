@@ -1,0 +1,102 @@
+---
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+      - main
+  pull_request:
+    branches:
+      - master
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ansible_version: [11, 12]
+
+    steps:
+      - name: Check out the codebase
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build --rm=true \
+            --file=tests/Dockerfile.ubuntu-24.04.ansible-${{ matrix.ansible_version }} \
+            --tag=ubuntu-24.04:ansible-${{ matrix.ansible_version }} \
+            tests
+
+      - name: Run container
+        run: |
+          docker run --rm=true --detach \
+            --volume="${PWD}":/etc/ansible/roles/role_under_test:ro \
+            ubuntu-24.04:ansible-${{ matrix.ansible_version }} \
+            sleep infinity > container_id
+
+      - name: Display Ansible version
+        run: |
+          docker exec "$(cat container_id)" \
+            /root/.local/share/pipx/venvs/ansible/bin/ansible --version
+
+      - name: Ansible syntax check
+        run: |
+          docker exec "$(cat container_id)" \
+            /root/.local/share/pipx/venvs/ansible/bin/ansible-playbook \
+            /etc/ansible/roles/role_under_test/tests/test.yml --syntax-check
+
+      - name: Run Ansible playbook
+        run: |
+          docker exec "$(cat container_id)" \
+            /root/.local/share/pipx/venvs/ansible/bin/ansible-playbook \
+            /etc/ansible/roles/role_under_test/tests/test.yml
+
+      - name: Test user creation
+        run: |
+          docker exec "$(cat container_id)" \
+            grep "user1" /etc/shadow && echo 'User created' || (echo 'User not created' && exit 1)
+
+      - name: Test directory creation
+        run: |
+          docker exec "$(cat container_id)" \
+            test -d /home/user1/test1 && echo 'Directory created' || (echo 'Directory not created' && exit 1)
+
+      - name: Test group creation
+        run: |
+          docker exec "$(cat container_id)" \
+            grep "foobar" /etc/group && echo 'Group created' || (echo 'Group not created' && exit 1)
+
+      - name: Check directory ownership (user2)
+        run: |
+          docker exec "$(cat container_id)" stat -c '%G' /var/tmp/user2
+          docker exec "$(cat container_id)" \
+            sh -c '[ $(stat --format "%G" /var/tmp/user2) = "foobar" ]' && \
+            echo 'Good directory ownership' || (echo 'Wrong directory ownership' && exit 1)
+
+      - name: Check directory ownership (user1)
+        run: |
+          docker exec "$(cat container_id)" \
+            sh -c '[ $(stat --format "%G" /home/user1) = "sftpusers" ]' && \
+            echo 'Good directory ownership' || (echo 'Wrong directory ownership' && exit 1)
+
+      - name: Test user-specific directory creation
+        run: |
+          docker exec "$(cat container_id)" \
+            test -d /home/user1/test3 && echo 'User Directory created' || (echo 'User Directory not created' && exit 1)
+
+      - name: Test idempotence
+        run: |
+          docker exec "$(cat container_id)" \
+            /root/.local/share/pipx/venvs/ansible/bin/ansible-playbook \
+            /etc/ansible/roles/role_under_test/tests/test.yml | \
+            grep -q 'changed=1.*failed=0' && \
+            echo 'Idempotence test: pass' || (echo 'Idempotence test: fail' && exit 1)
+
+      - name: Clean up container
+        if: always()
+        run: |
+          if [ -f container_id ]; then
+            docker stop "$(cat container_id)" || true
+          fi
