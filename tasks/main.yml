@@ -169,4 +169,4 @@
   service:
     name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
     state: restarted
-  ignore_errors: Yes
+  ignore_errors: true
