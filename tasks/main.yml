@@ -1,11 +1,8 @@
 ---
 - name: "Compute SFTP users."
   set_fact:
-    _sftp_users: >-
-      [{% for sftp_user in sftp_users -%}
-        {{ sftp_user | combine({'home': sftp_user.home | default(sftp_home_partition + '/' + sftp_user.name) }) }}
-        {{ '' if loop.last else ',' }}
-      {%- endfor %}]
+    _sftp_users: "{{ _sftp_users | default([]) + [item | combine({'home': item.home | default(sftp_home_partition + '/' + item.name) })] }}"
+  loop: "{{ sftp_users }}"
 
 # Creates group for SFTP users.
 - name: SFTP-Server | Create sftp user group
