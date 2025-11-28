@@ -163,10 +163,3 @@
       auth,authpriv.*  /var/log/sftp/auth.log
   when: sftp_enable_logging
   notify: SFTP-Server | Restart rsyslog
-
-# Restart sshd to ensure all configuration has been applied. This should always be the last task.
-- name: SFTP-Server | Restart sshd
-  service:
-    name: "{{ 'ssh' if ansible_os_family == 'Debian' else 'sshd' }}"
-    state: restarted
-  ignore_errors: true
