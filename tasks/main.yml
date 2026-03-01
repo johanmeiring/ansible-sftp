@@ -1,8 +1,12 @@
 ---
-- name: "Compute SFTP users."
+- name: Compute SFTP users.
   set_fact:
     _sftp_users: "{{ _sftp_users | default([]) + [item | combine({'home': item.home | default(sftp_home_partition + '/' + item.name) })] }}"
   loop: "{{ sftp_users }}"
+
+- name: SFTP-Server | Set chroot path prefix
+  set_fact:
+    _chroot_prefix: "{{ '/' + sftp_chroot_subdirectory if sftp_chroot_subdirectory else '' }}"
 
 # Creates group for SFTP users.
 - name: SFTP-Server | Create sftp user group
@@ -41,7 +45,7 @@
     marker: "# {mark} SFTP-Server {{ sftp_group_name }} block"
     block: |
       Match Group {{ sftp_group_name }}
-          ChrootDirectory %h
+          ChrootDirectory %h{{ _chroot_prefix }}
           AllowTCPForwarding no
           PermitTunnel no
           X11Forwarding no
@@ -69,6 +73,16 @@
     state: present
   with_items: "{{ _sftp_users }}"
 
+- name: Create chroot directory
+  file:
+    path: "{{ item.home }}{{ _chroot_prefix }}"
+    owner: root
+    group: root
+    mode: "0755"
+    state: directory
+  when: sftp_chroot_subdirectory | length > 0
+  with_items: "{{ _sftp_users }}"
+
 # A working chrooted SFTP setup requires root:sftgroup ownership of a user's home directory.
 # Temporarily removing the task below until we find a solution which does not
 # set the permissions of e.g. /home
@@ -89,6 +103,7 @@
     group: "{{ item.group | default(sftp_group_name) }}"
     mode: "{{ item.mode | default('0750') }}"
   with_items: "{{ _sftp_users }}"
+
 
 # Install all relevant public keys.
 - name: SFTP-Server | Install public keys
@@ -112,7 +127,7 @@
 # Create directories for all SFTP users. Optional, but recommended.
 - name: SFTP-Server | Create directories
   file:
-    path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
+    path: "{{ item[0].home }}{{ _chroot_prefix }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
     group: "{{ item[0].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default('0750') }}"
@@ -124,7 +139,7 @@
 # Create directories for individual SFTP users. Optional.
 - name: SFTP-Server | Create directories per user
   file:
-    path: "{{ item[0].home }}/{{ item[1].name | default(item[1]) }}"
+    path: "{{ item[0].home }}{{ _chroot_prefix }}/{{ item[1].name | default(item[1]) }}"
     owner: "{{ item[0].name }}"
     group: "{{ item[0].group | default(item[0].name) }}"
     mode: "{{ item[1].mode | default('0750') }}"
